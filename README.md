@@ -617,6 +617,7 @@ install (primes pnpm store cache)
 - **Roles** — separate Admin (full access) and Viewer (read-only) roles using Supabase custom claims
 - **Category management** — let admins add, edit, or remove categories (currently fixed)
 - **Audit history UI** — show a timeline of changes using the existing audit columns
+- **Notifications** — Send email notifications to user when quantity of product falls below configurable threshold
 - **Bulk import/export** — upload products from a CSV file, export for reporting
 - **Dark mode** — toggle between light and dark theme
 - **End-to-end tests** — Playwright or Cypress tests for full user flows
