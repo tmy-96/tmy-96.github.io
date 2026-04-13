@@ -10,7 +10,7 @@ import { supabase } from '../lib/supabase';
 import type { Category } from '../types/category';
 
 interface FetchCategoriesResult {
-  data: Category[] | null;
+  categories: Category[] | null;
   error: string | null;
 }
 
@@ -39,7 +39,7 @@ function fetchCategoriesOnce(): Promise<FetchCategoriesResult> {
         // Allow retry on next mount if fetch failed
         cachePromise = null;
       }
-      return { data: data as Category[] | null, error: error?.message ?? null };
+      return { categories: data as Category[] | null, error: error?.message ?? null };
     });
 
   cachePromise = promise;
@@ -54,11 +54,11 @@ export function useCategories(): UseCategoriesReturn {
   useEffect(() => {
     if (cachedCategories !== null) return;
 
-    fetchCategoriesOnce().then(({ data, error: fetchError }) => {
+    fetchCategoriesOnce().then(({ categories, error: fetchError }) => {
       if (fetchError) {
         setError(fetchError);
-      } else if (data) {
-        setCategories(data);
+      } else if (categories) {
+        setCategories(categories);
       }
       setLoading(false);
     });
