@@ -276,6 +276,10 @@ The app is simple enough that global state managers like Redux or Context would 
 - `useProductImageStorage` — image upload and retrieval
 - `useUserNames` — user display name lookup
 
+### Why Deploy to GitHub Pages?
+
+GitHub Pages is free for public repositories and serves static files directly from the repo — no server to set up or maintain. Since this app is a static frontend (all data comes from Supabase), GitHub Pages is a perfect fit. There is no backend to host, so there is no hosting cost.
+
 ### Why HashRouter?
 
 GitHub Pages can't handle browser URL routing on the server side. HashRouter uses `/#/path` URLs, which work without any server setup.
