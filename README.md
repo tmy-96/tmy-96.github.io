@@ -591,6 +591,27 @@ END $$;
 
 ---
 
+## CI / CD Pipeline
+
+Every push to `main` runs the following pipeline automatically via GitHub Actions:
+
+```
+install (primes pnpm store cache)
+   │
+   ├── typecheck ─┐
+   ├── lint       ├─► build ─► deploy
+   └── test      ─┘
+```
+
+**How it works:**
+
+1. The `install` job runs `pnpm install` and saves the pnpm store to cache, keyed on `pnpm-lock.yaml`
+2. `typecheck`, `lint`, and `test` start in parallel once `install` finishes — each restores the store from cache and links packages locally (no re-downloading)
+3. If any of the three checks fail, `build` is skipped and nothing is deployed
+4. On success, `build` compiles the app and `deploy` publishes it to GitHub Pages
+
+---
+
 ## Future Improvements
 
 - **Roles** — separate Admin (full access) and Viewer (read-only) roles using Supabase custom claims
