@@ -33,7 +33,7 @@ flowchart TD
     D --> G[Edit Product]
     D --> H[Remove Product]
 
-    G --> C
+    G --> D
     E --> C
     F --> D
     H --> C
