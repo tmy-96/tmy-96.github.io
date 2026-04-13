@@ -11,7 +11,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "predeploy": "pnpm run build",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -25,6 +26,9 @@
     "react-hook-form": "^7.72.1",
     "react-router-dom": "^7.14.0",
     "tailwindcss": "^4.2.2"
+  },
+  "engines": {
+    "node": ">=24"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
