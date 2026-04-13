@@ -9,7 +9,7 @@ import { memo, useRef } from 'react';
 import { Box, Button, Stack, Typography } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { MAX_IMAGE_FILE_SIZE_BYTES, MAX_IMAGE_FILE_SIZE_LABEL } from '../constants/imageUpload';
+import { MAX_IMAGE_FILE_SIZE_BYTES, MAX_IMAGE_FILE_SIZE_DISPLAY } from '../constants/imageUpload';
 
 interface ImageUploadProps {
   /** Preview URL of the currently selected or existing image. */
@@ -46,7 +46,7 @@ export default memo(function ImageUpload({
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > maxFileSizeBytes) {
-        onFileValidation?.(`Image must be ${MAX_IMAGE_FILE_SIZE_LABEL} or smaller.`);
+        onFileValidation?.(`Image must be ${MAX_IMAGE_FILE_SIZE_DISPLAY} or smaller.`);
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
         }
@@ -137,7 +137,7 @@ export default memo(function ImageUpload({
         ) : null}
       </Stack>
       <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
-        Accepted formats: JPEG, PNG, GIF, WebP. Max size {MAX_IMAGE_FILE_SIZE_LABEL}.
+        Accepted formats: JPEG, PNG, GIF, WebP. Max size {MAX_IMAGE_FILE_SIZE_DISPLAY}.
       </Typography>
     </Box>
   );

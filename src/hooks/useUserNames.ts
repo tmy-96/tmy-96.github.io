@@ -42,22 +42,27 @@ export function useUserNames(): UseUserNamesReturn {
     if (inflightLookup) return inflightLookup;
 
     const lookupPromise = (async (): Promise<string> => {
-      const { data, error } = await supabase.rpc('get_user_display_name', {
-        user_id: userId,
-      });
-
-      const shouldCache = !error && Boolean(data);
-      const resolvedName = shouldCache ? (data as string) : 'Unknown User';
-
-      if (shouldCache) {
-        cacheRef.current[userId] = resolvedName;
-        setUserNames((prev) => {
-          if (prev[userId] === resolvedName) return prev;
-          return { ...prev, [userId]: resolvedName };
+      try {
+        const { data, error } = await supabase.rpc('get_user_display_name', {
+          user_id: userId,
         });
-      }
 
-      return resolvedName;
+        const shouldCache = !error && Boolean(data);
+        const resolvedName = shouldCache ? (data as string) : 'Unknown User';
+
+        if (shouldCache) {
+          cacheRef.current[userId] = resolvedName;
+          setUserNames((prev) => {
+            if (prev[userId] === resolvedName) return prev;
+            return { ...prev, [userId]: resolvedName };
+          });
+        }
+
+        return resolvedName;
+      } catch (err) {
+        console.error(`Failed to resolve user name for ${userId}:`, err);
+        return 'Unknown User';
+      }
     })();
 
     inflightRef.current[userId] = lookupPromise;

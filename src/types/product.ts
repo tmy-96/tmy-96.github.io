@@ -2,7 +2,7 @@
  * Product type definitions.
  *
  * Contains the full Product interface (as stored in Supabase) and
- * the ProductFormData interface (used for form input when creating/editing).
+ * the ProductFormPayload interface (normalized data submitted to the database).
  */
 import type { Category } from './category';
 
@@ -28,7 +28,7 @@ export interface Product {
 }
 
 /** Form input data for creating or updating a product. */
-export interface ProductFormData {
+export interface ProductFormPayload {
   name: string;
   description: string;
   price: number;

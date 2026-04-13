@@ -150,18 +150,18 @@ export default function ProductListPage() {
     DEFAULT_VISIBLE_COLUMNS
   );
   const [columnMenuAnchor, setColumnMenuAnchor] = useState<HTMLElement | null>(null);
-  const currentPage = Math.min(page, Math.max(0, Math.ceil(totalCount / rowsPerPage) - 1));
+  const clampedPage = Math.min(page, Math.max(0, Math.ceil(totalCount / rowsPerPage) - 1));
 
   useEffect(() => {
     fetchProducts({
-      page: currentPage,
+      page: clampedPage,
       rowsPerPage,
       searchTerm,
       categoryId: categoryFilter,
       sortBy,
       sortDirection,
     });
-  }, [categoryFilter, currentPage, fetchProducts, rowsPerPage, searchTerm, sortBy, sortDirection]);
+  }, [categoryFilter, clampedPage, fetchProducts, rowsPerPage, searchTerm, sortBy, sortDirection]);
 
   useEffect(() => {
     const preloadUserNames = async (): Promise<void> => {
@@ -179,7 +179,7 @@ export default function ProductListPage() {
     }
   }, [products, resolveUserName]);
 
-  const displayedColumns = useMemo(
+  const activeColumns = useMemo(
     () => COLUMNS.filter((column) => visibleColumns[column.key]),
     [visibleColumns]
   );
@@ -235,7 +235,7 @@ export default function ProductListPage() {
     });
   };
 
-  const renderCellValue = (product: Product, column: keyof Product): string | number => {
+  const getCellValue = (product: Product, column: keyof Product): string | number => {
     switch (column) {
       case 'name':
         return product.name;
@@ -350,7 +350,7 @@ export default function ProductListPage() {
               <Table>
                 <TableHead>
                   <TableRow>
-                    {displayedColumns.map((column) => (
+                    {activeColumns.map((column) => (
                       <TableCell key={column.key} align="left" sx={{ fontWeight: 700 }}>
                         <TableSortLabel
                           active={sortBy === column.key}
@@ -367,7 +367,7 @@ export default function ProductListPage() {
                 <TableBody>
                   {Array.from({ length: rowsPerPage + 1}).map((_, rowIndex) => (
                     <TableRow key={rowIndex}>
-                      {displayedColumns.map((column) => (
+                      {activeColumns.map((column) => (
                         <TableCell key={column.key}>
                           <Skeleton variant="text" width="80%" />
                         </TableCell>
@@ -389,7 +389,7 @@ export default function ProductListPage() {
                 <Table>
                   <TableHead>
                     <TableRow>
-                      {displayedColumns.map((column) => (
+                      {activeColumns.map((column) => (
                         <TableCell
                           key={column.key}
                           align="left"
@@ -431,7 +431,7 @@ export default function ProductListPage() {
                           };
                         }}
                       >
-                        {displayedColumns.map((column) => (
+                        {activeColumns.map((column) => (
                           <TableCell
                             key={column.key}
                             align="left"
@@ -452,10 +452,10 @@ export default function ProductListPage() {
                                 placement="top-start"
                                 disableHoverListener={!product.description}
                               >
-                                <span>{renderCellValue(product, column.key)}</span>
+                                <span>{getCellValue(product, column.key)}</span>
                               </Tooltip>
                             ) : (
-                              renderCellValue(product, column.key)
+                              getCellValue(product, column.key)
                             )}
                           </TableCell>
                         ))}
@@ -467,7 +467,7 @@ export default function ProductListPage() {
               <TablePagination
                 component="div"
                 count={totalCount}
-                page={currentPage}
+                page={clampedPage}
                 onPageChange={handleChangePage}
                 rowsPerPage={rowsPerPage}
                 onRowsPerPageChange={handleChangeRowsPerPage}

@@ -39,7 +39,7 @@ import ImageUpload from '../components/ImageUpload';
 import { MAX_IMAGE_FILE_SIZE_BYTES } from '../constants/imageUpload';
 import type { Product } from '../types/product';
 
-interface ProductFormValues {
+interface ProductFormInputs {
   name: string;
   description: string;
   price: string;
@@ -47,7 +47,7 @@ interface ProductFormValues {
   categoryId: string;
 }
 
-const INITIAL_FORM_VALUES: ProductFormValues = {
+const INITIAL_FORM_VALUES: ProductFormInputs = {
   name: '',
   description: '',
   price: '0.00',
@@ -70,7 +70,7 @@ export default function ProductFormPage() {
     handleSubmit: handleFormSubmit,
     reset,
     formState: { isDirty },
-  } = useForm<ProductFormValues>({
+  } = useForm<ProductFormInputs>({
     defaultValues: INITIAL_FORM_VALUES,
   });
 
@@ -165,7 +165,7 @@ export default function ProductFormPage() {
   }, []);
 
   /** Handle form submission for both create and edit modes. */
-  const handleSubmit = async (values: ProductFormValues): Promise<void> => {
+  const handleSubmit = async (values: ProductFormInputs): Promise<void> => {
     if (imageValidationError) {
       return;
     }
@@ -228,7 +228,14 @@ export default function ProductFormPage() {
             const path = await uploadImage(imageFile, newId);
             if (path) {
               // Update the product record with the image path
-              await updateProduct(newId, { image_path: path });
+              const updateSuccess = await updateProduct(newId, { image_path: path });
+              if (!updateSuccess) {
+                setError('Product created but failed to save the image. Please edit the product to re-upload.');
+                return;
+              }
+            } else {
+              setError('Product created but image upload failed. Please edit the product to re-upload.');
+              return;
             }
           }
           setAllowNavigation(true);
@@ -267,6 +274,7 @@ export default function ProductFormPage() {
       const shouldLeave = window.confirm('You have unsaved changes. Leave this page?');
       if (shouldLeave) {
         setAllowNavigation(true);
+        window.history.back();
         return;
       }
 
@@ -493,9 +501,9 @@ export default function ProductFormPage() {
                       <MenuItem value="" disabled>
                         <em>Select category</em>
                       </MenuItem>
-                      {categories.map((cat) => (
-                        <MenuItem key={cat.id} value={cat.id}>
-                          {cat.name}
+                      {categories.map((category) => (
+                        <MenuItem key={category.id} value={category.id}>
+                          {category.name}
                         </MenuItem>
                       ))}
                     </Select>

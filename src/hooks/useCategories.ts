@@ -16,31 +16,48 @@ export interface UseCategoriesReturn {
   error: string | null;
 }
 
+// Module-level cache so categories are fetched once per app session,
+// not on every component mount.
+let cachedCategories: Category[] | null = null;
+let cachePromise: Promise<{ data: Category[] | null; error: string | null }> | null = null;
+
+function fetchCategoriesOnce(): Promise<{ data: Category[] | null; error: string | null }> {
+  if (cachePromise) return cachePromise;
+
+  cachePromise = supabase
+    .from('categories')
+    .select('*')
+    .order('name', { ascending: true })
+    .then(({ data, error }) => {
+      if (!error && data) {
+        cachedCategories = data as Category[];
+      } else {
+        // Allow retry on next mount if fetch failed
+        cachePromise = null;
+      }
+      return { data: data as Category[] | null, error: error?.message ?? null };
+    });
+
+  return cachePromise;
+}
+
 export function useCategories(): UseCategoriesReturn {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [categories, setCategories] = useState<Category[]>(cachedCategories ?? []);
+  const [loading, setLoading] = useState<boolean>(cachedCategories === null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchCategories = async (): Promise<void> => {
-      setLoading(true);
-      setError(null);
+    if (cachedCategories !== null) return;
 
-      const { data, error: fetchError } = await supabase
-        .from('categories')
-        .select('*')
-        .order('name', { ascending: true });
-
+    setLoading(true);
+    fetchCategoriesOnce().then(({ data, error: fetchError }) => {
       if (fetchError) {
-        setError(fetchError.message);
-      } else {
-        setCategories(data as Category[]);
+        setError(fetchError);
+      } else if (data) {
+        setCategories(data);
       }
-
       setLoading(false);
-    };
-
-    fetchCategories();
+    });
   }, []);
 
   return { categories, loading, error };

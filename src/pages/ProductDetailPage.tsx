@@ -59,9 +59,9 @@ export default function ProductDetailPage() {
   });
 
   // Local quantity state — changes are held here until "Save" is clicked
-  const [localQuantity, setLocalQuantity] = useState<number>(0);
+  const [pendingQuantity, setPendingQuantity] = useState<number>(0);
   // Track whether the user has unsaved quantity changes
-  const hasQuantityChanged = product !== null && localQuantity !== product.quantity;
+  const hasQuantityChanged = product !== null && pendingQuantity !== product.quantity;
 
   // Fetch product details and resolve audit user names on mount
   useEffect(() => {
@@ -73,7 +73,7 @@ export default function ProductDetailPage() {
 
       // Initialize local quantity from fetched product
       if (data) {
-        setLocalQuantity(data.quantity);
+        setPendingQuantity(data.quantity);
         const createdName = await resolveUserName(data.created_by);
         setCreatedByName(createdName);
         if (data.edited_by) {
@@ -90,27 +90,27 @@ export default function ProductDetailPage() {
 
   /** Increment local quantity (not yet saved to DB). */
   const handleIncrement = (): void => {
-    setLocalQuantity((prev) => prev + 1);
+    setPendingQuantity((prev) => prev + 1);
   };
 
   /** Decrement local quantity (not yet saved to DB). Minimum 0. */
   const handleDecrement = (): void => {
-    setLocalQuantity((prev) => Math.max(0, prev - 1));
+    setPendingQuantity((prev) => Math.max(0, prev - 1));
   };
 
   /** Set local quantity directly from keyboard input. */
-  const handleSetLocalQuantity = (value: number): void => {
-    setLocalQuantity(Math.max(0, Math.floor(value)));
+  const handleSetPendingQuantity = (value: number): void => {
+    setPendingQuantity(Math.max(0, Math.floor(value)));
   };
 
   /** Persist the local quantity to the database. */
   const handleSaveQuantity = async (): Promise<void> => {
     if (!product) return;
     setActionLoading(true);
-    const success = await setQuantity(product.id, localQuantity);
+    const success = await setQuantity(product.id, pendingQuantity);
     if (success) {
-      setProduct((prev) => prev ? { ...prev, quantity: localQuantity } : null);
-      setSnackbar({ open: true, message: `Quantity updated to ${localQuantity}.` });
+      setProduct((prev) => prev ? { ...prev, quantity: pendingQuantity } : null);
+      setSnackbar({ open: true, message: `Quantity updated to ${pendingQuantity}.` });
     }
     setActionLoading(false);
   };
@@ -227,10 +227,10 @@ export default function ProductDetailPage() {
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
               <QuantityControl
-                quantity={localQuantity}
+                quantity={pendingQuantity}
                 onIncrement={handleIncrement}
                 onDecrement={handleDecrement}
-                onSetQuantity={handleSetLocalQuantity}
+                onSetQuantity={handleSetPendingQuantity}
                 disabled={actionLoading}
               />
               {hasQuantityChanged && (

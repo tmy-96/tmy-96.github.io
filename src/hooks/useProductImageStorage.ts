@@ -8,7 +8,6 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import {
-  ALLOWED_IMAGE_EXTENSIONS,
   ALLOWED_IMAGE_MIME_TYPES,
   PRODUCT_IMAGE_PATH_PATTERN,
 } from '../constants/imageUpload';
@@ -53,9 +52,16 @@ export function useProductImageStorage(): UseProductImageStorageReturn {
         return null;
       }
 
-      // Generate a unique filename to prevent collisions
-      const fileExt = file.name.split('.').pop()?.toLowerCase();
-      const safeExt = fileExt && ALLOWED_IMAGE_EXTENSIONS.has(fileExt) ? fileExt : 'jpg';
+      // Generate a unique filename to prevent collisions.
+      // Derive extension from MIME type rather than filename to avoid mismatches
+      // (e.g. a file named "photo.txt" with MIME type "image/jpeg").
+      const mimeToExt: Record<string, string> = {
+        'image/jpeg': 'jpg',
+        'image/png': 'png',
+        'image/gif': 'gif',
+        'image/webp': 'webp',
+      };
+      const safeExt = mimeToExt[file.type] ?? 'jpg';
       const fileName = `${Date.now()}.${safeExt}`;
       const storagePath = `${productId}/${fileName}`;
 
