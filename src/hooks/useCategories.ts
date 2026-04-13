@@ -9,26 +9,30 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import type { Category } from '../types/category';
 
-/** Return type of the useCategories hook. */
-export interface UseCategoriesReturn {
-  categories: Category[];
-  loading: boolean;
+interface FetchCategoriesResult {
+  data: Category[] | null;
   error: string | null;
+}
+
+/** Return type of the useCategories hook. */
+export interface UseCategoriesReturn extends FetchCategoriesResult {
+  loading: boolean;
 }
 
 // Module-level cache so categories are fetched once per app session,
 // not on every component mount.
 let cachedCategories: Category[] | null = null;
-let cachePromise: Promise<{ data: Category[] | null; error: string | null }> | null = null;
+let cachePromise: Promise<FetchCategoriesResult> | null = null;
 
-function fetchCategoriesOnce(): Promise<{ data: Category[] | null; error: string | null }> {
+function fetchCategoriesOnce(): Promise<FetchCategoriesResult> {
   if (cachePromise) return cachePromise;
 
-  cachePromise = supabase
-    .from('categories')
-    .select('*')
-    .order('name', { ascending: true })
-    .then(({ data, error }) => {
+  const promise: Promise<FetchCategoriesResult> = Promise.resolve(
+    supabase
+      .from('categories')
+      .select('*')
+      .order('name', { ascending: true })
+  ).then(({ data, error }) => {
       if (!error && data) {
         cachedCategories = data as Category[];
       } else {
@@ -38,7 +42,8 @@ function fetchCategoriesOnce(): Promise<{ data: Category[] | null; error: string
       return { data: data as Category[] | null, error: error?.message ?? null };
     });
 
-  return cachePromise;
+  cachePromise = promise;
+  return promise;
 }
 
 export function useCategories(): UseCategoriesReturn {
@@ -49,7 +54,6 @@ export function useCategories(): UseCategoriesReturn {
   useEffect(() => {
     if (cachedCategories !== null) return;
 
-    setLoading(true);
     fetchCategoriesOnce().then(({ data, error: fetchError }) => {
       if (fetchError) {
         setError(fetchError);
