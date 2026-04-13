@@ -178,6 +178,7 @@ Open [http://localhost:5173](http://localhost:5173) and log in with one of the p
 | ---------------- | ---------------------- |
 | `pnpm test`      | Run unit tests         |
 | `pnpm typecheck` | Check TypeScript types |
+| `pnpm lint`      | Run linter             |
 | `pnpm build`     | Build for production   |
 | `pnpm deploy`    | Deploy to GitHub Pages |
 
