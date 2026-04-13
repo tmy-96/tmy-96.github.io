@@ -10,7 +10,7 @@ import { supabase } from '../lib/supabase';
 import type { Category } from '../types/category';
 
 interface FetchCategoriesResult {
-  categories: Category[] | null;
+  categories: Category[];
   error: string | null;
 }
 
@@ -39,7 +39,7 @@ function fetchCategoriesOnce(): Promise<FetchCategoriesResult> {
         // Allow retry on next mount if fetch failed
         cachePromise = null;
       }
-      return { categories: data as Category[] | null, error: error?.message ?? null };
+      return { categories: data as Category[] | [], error: error?.message ?? null };
     });
 
   cachePromise = promise;
